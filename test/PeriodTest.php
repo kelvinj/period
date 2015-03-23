@@ -31,6 +31,21 @@ class PeriodTest extends PHPUnit_Framework_TestCase
         $this->assertSame('2014-04-30T21:00:00Z/2014-05-07T21:00:00Z', (string) $period);
     }
 
+    public function testJsonEncode()
+    {
+        $start = new DateTime('2014-05-01');
+        $end   = new DateTime('2014-05-08');
+        $res = json_decode(json_encode(new Period($start, $end)), true);
+        $this->assertEquals(
+            $start,
+            new DateTime($res['startDate']['date'], new DateTimeZone($res['startDate']['timezone']))
+        );
+        $this->assertEquals(
+            $end,
+            new DateTime($res['endDate']['date'], new DateTimeZone($res['endDate']['timezone']))
+        );
+    }
+
     public function testGetDatePeriod()
     {
         $period = Period::createFromDuration(new DateTime(), "1 DAY");

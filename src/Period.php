@@ -20,6 +20,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
+use JsonSerializable;
 use LogicException;
 use OutOfRangeException;
 use RuntimeException;
@@ -27,7 +28,7 @@ use RuntimeException;
 /**
  * A immutable value object class to manipulate Time Range.
  */
-final class Period
+final class Period implements JsonSerializable
 {
     /**
      * DateTime Format to create ISO8601 Interval format
@@ -100,6 +101,19 @@ final class Period
 
         return $startDate->setTimeZone($utc)->format(self::ISO8601)
             .'/'.$endDate->setTimeZone($utc)->format(self::ISO8601);
+    }
+
+    /**
+     * implement JsonSerializable interface
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return [
+            'startDate' => clone $this->startDate,
+            'endDate' => clone $this->endDate,
+        ];
     }
 
     /**
@@ -621,7 +635,7 @@ final class Period
             throw new RuntimeException(__METHOD__.' is expecting at least one argument');
         }
         $initiate = clone $this;
-        
+
         return array_reduce($periods, function (Period $carry, Period $period) {
             if ($carry->startDate > $period->startDate) {
                 $carry = $carry->startingOn($period->startDate);
